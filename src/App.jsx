@@ -20,15 +20,6 @@ export default function App() {
       className="d-flex flex-column"
       style={{ height: "100vh", padding: 0 }}
     >
-      {/* Top bar with fixed height */}
-      <Row style={{ height: "50px" }} className="align-items-center px-3">
-        <Col>
-          <h2>
-            {now.toDateString()} {now.toLocaleTimeString()}
-          </h2>
-        </Col>
-      </Row>
-
       {/* Main content fills remaining space */}
       <Row className="flex-grow-1" style={{ margin: 0 }}>
         {/* Left half */}
@@ -57,6 +48,15 @@ export default function App() {
             <NotesCard></NotesCard>
             {/* Content */}
           </div>
+        </Col>
+      </Row>
+
+      {/* Bottom bar with fixed height */}
+      <Row style={{ height: "50px" }} className="align-items-center px-3">
+        <Col>
+          <h2>
+            {now.toDateString()} {now.toLocaleTimeString()}
+          </h2>
         </Col>
       </Row>
     </Container>
