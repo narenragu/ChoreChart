@@ -1,14 +1,33 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Row, Container, Card } from "react-bootstrap";
+import { Button, Col, Row, Container, Card, Badge } from "react-bootstrap";
 
 function Chore(props) {
   return (
     <>
-      <Card style={{ background: props.color + "1F" }}>
-        <Card.Header className="p-2">
-          <h4 className="text-center">{props.name ?? "Loading..."}</h4>
+      <Card className="my-2">
+        <Card.Header className="p-0" style={{ background: props.color + "1F" }}>
+          <Container className="p-0">
+            <Row className="px-2">
+              <Col>
+                <h3 className="p-0">{props.name}</h3>
+              </Col>
+              <Col md="auto">
+                <h5>
+                  <Badge
+                    bg={
+                      new Date(props.dueDate.seconds * 1000) < Date.now()
+                        ? "danger"
+                        : "secondary"
+                    }
+                  >
+                    {new Date(props.dueDate.seconds * 1000).toDateString()}
+                  </Badge>
+                </h5>
+              </Col>
+            </Row>
+          </Container>
         </Card.Header>
-        <Card.Body className="p-1">
+        <Card.Body className="p-1" style={{ background: props.color + "08" }}>
           <Container fluid>
             <Row className="w-100">
               {[0, 1, 2, 3, 4].map((userId, index) => {
@@ -39,7 +58,16 @@ function Chore(props) {
                         mixBlendMode: "overlay",
                       }}
                     >
-                      {props.userMap[userId]}
+                      {props.userMap[userId]}{" "}
+                      {props.skips?.[userId] ? (
+                        <Badge bg="primary">
+                          {props.skips[userId] > 1
+                            ? "skip (" + props.skips[userId] + "x)"
+                            : "skip"}
+                        </Badge>
+                      ) : (
+                        ""
+                      )}
                     </h5>
                   </Col>
                 );
