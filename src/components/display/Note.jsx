@@ -57,7 +57,7 @@ function Note(props) {
                 onClick={() => {
                   setShowEditModal(true);
                 }}
-                variant="secondary"
+                variant="outline-secondary"
               >
                 Edit
               </Button>
@@ -66,7 +66,7 @@ function Note(props) {
               onClick={() => {
                 setShowDeleteModal(true);
               }}
-              variant="danger"
+              variant="outline-danger"
             >
               Delete
             </Button>

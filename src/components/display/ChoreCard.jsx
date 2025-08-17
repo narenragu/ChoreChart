@@ -95,7 +95,11 @@ function ChoreCard(props) {
         <Card.Header>
           <h3>Chores</h3>
         </Card.Header>
-        <Card.Body style={{ overflowY: "auto" }} ref={scrollRef}>
+        <Card.Body
+          style={{ overflowY: "clip" }}
+          ref={scrollRef}
+          className="p-2"
+        >
           {chores
             .sort((a, b) => a.dueDate - b.dueDate)
             .map((chore) => {

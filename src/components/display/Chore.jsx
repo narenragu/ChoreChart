@@ -162,6 +162,7 @@ function Chore(props) {
                 onClick={() => {
                   setShowModal(true);
                 }}
+                variant="outline-primary"
               >
                 Complete Chore
               </Button>

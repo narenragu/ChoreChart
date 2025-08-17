@@ -9,6 +9,7 @@ import AccountTab from "./components/control/AccountTab.jsx";
 import ChoreTab from "./components/control/ChoreTab.jsx";
 import NotesTab from "./components/control/NotesTab.jsx";
 import ImageTab from "./components/control/ImageTab.jsx";
+import CounterTab from "./components/control/CounterTab.jsx";
 
 export default function Control() {
   const [user, setUser] = useState("loading");
@@ -84,14 +85,15 @@ export default function Control() {
                       <Tab eventKey="notes" title="Notes" key="notes">
                         <NotesTab userData={userData} user={user} />
                       </Tab>,
-                      <Tab eventKey="counters" title="Counters" key="counters">
-                        Tab content for Counters
-                      </Tab>,
                       <Tab eventKey="history" title="History" key="history">
-                        Tab content for History
+                        History Tab Placeholder
                       </Tab>,
                     ]
                   : ""}
+                <Tab eventKey="counters" title="Counters" key="counters">
+                  <CounterTab userData={userData} />
+                </Tab>
+
                 <Tab eventKey="image" title="Image">
                   <ImageTab />
                 </Tab>

@@ -119,7 +119,7 @@ export default function App() {
             }}
           >
             <div style={{ flex: 1, overflowY: "auto" }}>
-              <CounterCard />
+              <CounterCard userData={userData} />
             </div>
             <div style={{ flex: 1, overflowY: "hidden" }}>
               <ImageCard />

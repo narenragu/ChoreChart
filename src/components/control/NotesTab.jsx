@@ -89,7 +89,7 @@ export default function NotesTab(props) {
             setCreateMessage("");
           }}
         >
-          Add New Note
+          + Add Note
         </Button>
       </div>
       <hr></hr>
