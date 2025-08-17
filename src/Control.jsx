@@ -10,6 +10,7 @@ import ChoreTab from "./components/control/ChoreTab.jsx";
 import NotesTab from "./components/control/NotesTab.jsx";
 import ImageTab from "./components/control/ImageTab.jsx";
 import CounterTab from "./components/control/CounterTab.jsx";
+import HistoryTab from "./components/control/HistoryTab.jsx";
 
 export default function Control() {
   const [user, setUser] = useState("loading");
@@ -86,7 +87,7 @@ export default function Control() {
                         <NotesTab userData={userData} user={user} />
                       </Tab>,
                       <Tab eventKey="history" title="History" key="history">
-                        History Tab Placeholder
+                        <HistoryTab userData={userData} />
                       </Tab>,
                     ]
                   : ""}

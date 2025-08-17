@@ -9,7 +9,14 @@ import {
   Modal,
 } from "react-bootstrap";
 import { db } from "../../firebase";
-import { doc, increment, updateDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  increment,
+  updateDoc,
+  getDoc,
+  addDoc,
+  collection,
+} from "firebase/firestore";
 
 function Chore(props) {
   const [showModal, setShowModal] = useState(false);
@@ -74,7 +81,23 @@ function Chore(props) {
     }
   }
 
+  async function addHistory() {
+    const newEntry = {
+      date: new Date(),
+      userID: props.user.uid,
+      type: "Chore",
+      data: props.name,
+    };
+    try {
+      const docRef = await addDoc(collection(db, "history"), newEntry);
+      console.log("Document written with ID:", docRef.id);
+    } catch (error) {
+      console.error("Error adding document:", error);
+    }
+  }
+
   function handleConfirm() {
+    addHistory();
     if (props.rotation[props.assigneeIndex] != props.user.uid) {
       incrementSkip(props.id, props.user.uid);
     } else {
