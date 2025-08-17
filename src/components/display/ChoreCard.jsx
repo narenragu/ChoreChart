@@ -1,12 +1,18 @@
 import { useEffect, useState, useRef } from "react";
 import { Button, Col, Row, Container, Card } from "react-bootstrap";
 import { db } from "../../firebase.js";
-import { collection, getDocs, getDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  onSnapshot,
+} from "firebase/firestore";
 import Chore from "./Chore.jsx";
 
-function ChoreCard() {
+function ChoreCard(props) {
   const [chores, setChores] = useState([]);
-  const [userMap, setUserMap] = useState([]);
+  const [rotation, setRotation] = useState([]);
   const scrollRef = useRef();
   const [scrollDirection, setScrollDirection] = useState();
   const pauseTime = 2000;
@@ -25,7 +31,7 @@ function ChoreCard() {
 
       // If reached bottom
       if (
-        container.scrollTop + container.clientHeight >=
+        container.scrollTop + container.clientHeight + 2 >=
         container.scrollHeight
       ) {
         scrolling = false;
@@ -56,7 +62,6 @@ function ChoreCard() {
       id: doc.id,
       ...doc.data(),
     }));
-    console.log(choreList);
     setChores(choreList);
   }
 
@@ -65,12 +70,23 @@ function ChoreCard() {
       const docRef = doc(db, "rotations", "rotations");
       const docSnap = await getDoc(docRef);
 
-      setUserMap(docSnap.data().userMap);
-      setRotation(docSnap.data().defaultRotation);
+      setRotation(docSnap.data().rotation);
     }
-
+    console.log("fetching chores");
     fetchChores();
     fetchRotations();
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "chores"), (chores) => {
+      chores = chores.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setChores(chores);
+    });
+
+    return () => unsub();
   }, []);
 
   return (
@@ -84,7 +100,12 @@ function ChoreCard() {
             .sort((a, b) => a.dueDate - b.dueDate)
             .map((chore) => {
               return (
-                <Chore {...chore} userMap={userMap} key={chore.name}></Chore>
+                <Chore
+                  {...chore}
+                  rotation={rotation}
+                  userData={props.userData}
+                  key={chore.name}
+                ></Chore>
               );
             })}
         </Card.Body>

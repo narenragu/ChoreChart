@@ -1,14 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import ChoreCard from "./components/display/ChoreCard.jsx";
-import TodoCard from "./components/display/TodoCard.jsx";
+import CounterCard from "./components/display/CounterCard.jsx";
 import NotesCard from "./components/display/NotesCard.jsx";
+import ImageCard from "./components/display/ImageCard.jsx";
 
 import { Col, Row, Container } from "react-bootstrap";
+import { getDoc, getDocs, collection, onSnapshot } from "firebase/firestore";
+import { db } from "./firebase.js";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
+  const [userData, setUserData] = useState({});
   const bottomBarRef = useRef(null);
 
   // Clock updater
@@ -28,6 +32,34 @@ export default function App() {
     updateHeight(); // initial measure
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const docSnap = await getDocs(collection(db, "userData"));
+
+      const result = {};
+      docSnap.forEach((doc) => {
+        result[doc.id] = doc.data();
+      });
+      console.log("getting userdata");
+
+      setUserData(result);
+    }
+
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "userData"), (newUserData) => {
+      const result = {};
+      newUserData.forEach((doc) => {
+        result[doc.id] = doc.data();
+      });
+      setUserData(result);
+    });
+
+    return () => unsub();
   }, []);
 
   return (
@@ -56,7 +88,7 @@ export default function App() {
             height: "100%",
           }}
         >
-          <ChoreCard />
+          <ChoreCard userData={userData} />
         </Col>
 
         {/* Right side split vertically */}
@@ -75,16 +107,23 @@ export default function App() {
               overflowY: "auto",
             }}
           >
-            <TodoCard />
+            <NotesCard userData={userData} />
           </div>
           <div
             style={{
               flex: 1,
               padding: "1rem",
-              overflowY: "auto",
+              display: "flex",
+              gap: "1rem",
+              overflow: "hidden",
             }}
           >
-            <NotesCard />
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              <CounterCard />
+            </div>
+            <div style={{ flex: 1, overflowY: "hidden" }}>
+              <ImageCard />
+            </div>
           </div>
         </Col>
       </Row>
