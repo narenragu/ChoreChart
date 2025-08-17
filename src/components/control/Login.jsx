@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   setPersistence,
   browserLocalPersistence,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { updateDoc, setDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase.js";
@@ -17,12 +18,19 @@ import {
   Col,
   FloatingLabel,
   Alert,
+  Modal,
+  InputGroup,
 } from "react-bootstrap";
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
   const [error, setError] = useState({
     msg: "You are currently logged out.",
+    timestamp: Date.now(),
+  });
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetError, setResetError] = useState({
+    msg: "",
     timestamp: Date.now(),
   });
 
@@ -40,6 +48,21 @@ export default function Login() {
       clearTimeout(timer);
     };
   }, [error]);
+
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => {
+      setResetError({
+        msg: "",
+        timestamp: Date.now(),
+      });
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [resetError]);
 
   function login(e) {
     e.preventDefault();
@@ -65,6 +88,7 @@ export default function Login() {
     const formData = new FormData(e.target);
     const email = formData.get("email");
     const password = formData.get("password");
+    const name = formData.get("name");
 
     const auth = getAuth();
     setPersistence(auth, browserLocalPersistence)
@@ -73,7 +97,7 @@ export default function Login() {
       })
       .then((userCredential) => {
         console.log("Signed up and signed in:", userCredential.user);
-        return createUserData(userCredential.user);
+        return createUserData(userCredential.user, name);
       })
       .then(() => {
         console.log("Added user data to database.");
@@ -84,10 +108,28 @@ export default function Login() {
       });
   }
 
-  async function createUserData(user) {
+  async function resetPassword(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const email = formData.get("resetEmail");
+
+    const auth = getAuth();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetError({
+        msg: "Password reset email sent! Check your inbox.",
+        timestamp: Date.now(),
+      });
+    } catch (err) {
+      setResetError({ msg: err.message, timestamp: Date.now() });
+    }
+  }
+
+  async function createUserData(user, name) {
+    if (!name) name = "Unknown";
     const docRef = doc(db, "userData", user.uid);
     return await setDoc(docRef, {
-      name: "Unknown",
+      name: name,
       email: user.email,
     });
   }
@@ -112,6 +154,17 @@ export default function Login() {
               </Card.Header>
               <Card.Body>
                 <Form onSubmit={isSignup ? signup : login}>
+                  {isSignup && (
+                    <Form.Group>
+                      <FloatingLabel label="First Name">
+                        <Form.Control
+                          name="name"
+                          placeholder="Enter First Name"
+                        />
+                      </FloatingLabel>
+                      <br></br>
+                    </Form.Group>
+                  )}
                   <Form.Group>
                     {/* <Form.Label>Email Address</Form.Label> */}
                     <FloatingLabel label="Email Address">
@@ -141,6 +194,20 @@ export default function Login() {
                       {isSignup ? "Existing User" : "New User"}
                     </Button>
                   </div>
+
+                  {!isSignup && (
+                    <>
+                      <br></br>
+                      <Button
+                        onClick={() => {
+                          setShowResetModal(true);
+                        }}
+                        variant="outline-light"
+                      >
+                        Forgot Password?
+                      </Button>
+                    </>
+                  )}
                   <br />
                   <Alert show={error.msg != ""} variant="warning">
                     {error.msg}
@@ -151,6 +218,34 @@ export default function Login() {
           </Col>
         </Row>
       </Container>
+
+      {/* Password Reset Modal */}
+      <Modal
+        show={showResetModal}
+        onHide={() => {
+          setShowResetModal(false);
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <h2>Reset Password</h2>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Enter your email, and a link will be sent to reset your password.
+          </p>
+          <Form onSubmit={resetPassword}>
+            <InputGroup>
+              <Form.Control name="resetEmail" type="email"></Form.Control>
+              <Button type="submit">Send</Button>
+            </InputGroup>
+          </Form>
+          <br></br>
+          <Alert show={resetError.msg != ""} variant="warning">
+            {resetError.msg}
+          </Alert>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
