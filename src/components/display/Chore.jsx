@@ -20,6 +20,7 @@ import {
 
 function Chore(props) {
   const [showModal, setShowModal] = useState(false);
+  const [datePicker, setDatePicker] = useState(new Date());
 
   async function incrementSkip(chore, user) {
     const choreRef = doc(db, "chores", chore);
@@ -84,9 +85,10 @@ function Chore(props) {
   async function addHistory() {
     const newEntry = {
       date: new Date(),
+      dateAssigned: datePicker,
       userID: props.user.uid,
       type: "Chore",
-      data: props.name,
+      data: { name: props.name, color: props.color },
     };
     try {
       const docRef = await addDoc(collection(db, "history"), newEntry);
@@ -98,6 +100,7 @@ function Chore(props) {
 
   function handleConfirm() {
     addHistory();
+    changeDueDate(props.id);
     if (props.rotation[props.assigneeIndex] != props.user.uid) {
       incrementSkip(props.id, props.user.uid);
     } else {
@@ -107,6 +110,25 @@ function Chore(props) {
     setShowModal(false);
   }
 
+  function getDateNDaysFromNow(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  async function changeDueDate(chore) {
+    const choreRef = doc(db, "chores", chore);
+
+    try {
+      await updateDoc(choreRef, {
+        dueDate: datePicker,
+      });
+    } catch (err) {
+      console.error("Error updating due date:", err);
+    }
+  }
+
   return (
     <>
       <Card className="my-2">
@@ -114,10 +136,10 @@ function Chore(props) {
           <Container className="p-0">
             <Row className="px-2">
               <Col>
-                <h3 className="p-0">{props.name}</h3>
+                <h3 className="p-0 m-1">{props.name}</h3>
               </Col>
               <Col md="auto">
-                <h5>
+                <h5 className="p-0 m-1">
                   <Badge
                     bg={
                       new Date(props.dueDate.seconds * 1000) < Date.now()
@@ -184,6 +206,7 @@ function Chore(props) {
               <Button
                 onClick={() => {
                   setShowModal(true);
+                  setDatePicker(getDateNDaysFromNow(8));
                 }}
                 variant="outline-primary"
               >
@@ -208,7 +231,12 @@ function Chore(props) {
                   ) : (
                     <></>
                   )}
-                  <input type="date" />
+                  Enter a due date for this chore (default: +1 week)
+                  <input
+                    type="date"
+                    value={datePicker.toISOString().split("T")[0]}
+                    onChange={(e) => setDatePicker(new Date(e.target.value))}
+                  />
                 </Modal.Body>
                 <Modal.Footer>
                   <Button

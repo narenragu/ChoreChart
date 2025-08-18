@@ -34,10 +34,10 @@ function Note(props) {
           <Container className="p-0">
             <Row className="px-2">
               <Col>
-                <h4 className="p-0">{props.userData[props.userID].name}</h4>
+                <h4 className="p-0 m-1">{props.userData[props.userID].name}</h4>
               </Col>
               <Col md="auto">
-                <h5>
+                <h5 className="m-1">
                   <Badge>
                     {"Posted " +
                       new Date(props.datePosted.seconds * 1000).toDateString()}

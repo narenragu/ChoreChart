@@ -29,12 +29,13 @@ export default function Counter(props) {
                     style={{
                       backgroundColor: "#343a401F",
                     }}
+                    className="p-2"
                   >
-                    <h5>{props.userData[userID].name}</h5>
+                    <h5 className="m-0">{props.userData[userID].name}</h5>
                   </td>
-                  <td style={{ backgroundColor: "#343a40" }}>
+                  <td style={{ backgroundColor: "#343a40" }} className="p-2">
                     <div className="d-flex justify-content-center">
-                      <h5>{props.data[userID]}</h5>
+                      <h5 className="m-0">{props.data[userID]}</h5>
                     </div>
                   </td>
                 </tr>

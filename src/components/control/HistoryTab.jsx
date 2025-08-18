@@ -1,6 +1,6 @@
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Table, Tooltip } from "react-bootstrap";
+import { Badge, Table } from "react-bootstrap";
 import { db } from "../../firebase";
 
 export default function HistoryTab(props) {
@@ -34,6 +34,7 @@ export default function HistoryTab(props) {
 
   return (
     <>
+      <h3>Chore History</h3>
       <Table striped bordered>
         <thead>
           <tr>
@@ -48,7 +49,11 @@ export default function HistoryTab(props) {
             .map((entry) => (
               <tr>
                 <td>{props.userData[entry.userID].name}</td>
-                <td>{entry.data}</td>
+                <td>
+                  <Badge style={{ background: entry.data.color + "4F" }} bg="">
+                    {entry.data.name}
+                  </Badge>
+                </td>
                 <td>
                   {new Date(entry.date.seconds * 1000).toDateString() +
                     " " +
