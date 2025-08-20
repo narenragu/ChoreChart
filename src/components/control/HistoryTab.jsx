@@ -7,26 +7,12 @@ export default function HistoryTab(props) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    async function fetchHistory() {
-      const history = collection(db, "history");
-      let historyList = await getDocs(history);
-      historyList = historyList.docs.map((doc) => ({
+    const unsub = onSnapshot(collection(db, "history"), (snapshot) => {
+      const historyList = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setHistory(historyList);
-    }
-
-    fetchHistory();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "history"), (history) => {
-      history = history.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setHistory(history);
     });
 
     return () => unsub();

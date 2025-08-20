@@ -15,35 +15,26 @@ export default function ChoreTab(props) {
   const [rotation, setRotation] = useState([]);
   const [filter, setFilter] = useState(false);
 
-  async function fetchChores() {
-    const chores = collection(db, "chores");
-    let choreList = await getDocs(chores);
-    choreList = choreList.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setChores(choreList);
-  }
-
   useEffect(() => {
     async function fetchRotations() {
       const docRef = doc(db, "rotations", "rotations");
       const docSnap = await getDoc(docRef);
 
-      setRotation(docSnap.data().rotation);
+      if (docSnap.exists()) {
+        setRotation(docSnap.data().rotation);
+      }
     }
 
-    fetchChores();
     fetchRotations();
   }, []);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "chores"), (chores) => {
-      chores = chores.docs.map((doc) => ({
+    const unsub = onSnapshot(collection(db, "chores"), (snapshot) => {
+      const choresList = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setChores(chores);
+      setChores(choresList);
     });
 
     return () => unsub();
