@@ -95,6 +95,15 @@ export default function CounterTab({ userData }) {
     setShowEditModal(false);
   }
 
+  function getTotalUsed(counter) {
+    let result = 0;
+    Object.keys(counter.data).forEach((user) => {
+      result += counter.data[user];
+    });
+
+    return result;
+  }
+
   return (
     <>
       <div className="mt-3 d-flex justify-content-center">
@@ -124,6 +133,7 @@ export default function CounterTab({ userData }) {
                       variant="outline-danger"
                       size="sm"
                       onClick={() => updateCount(counter.id, userId, -1)}
+                      disabled={!(counter.data[userId] ?? 0)}
                     >
                       −
                     </Button>
@@ -136,6 +146,7 @@ export default function CounterTab({ userData }) {
                       variant="outline-success"
                       size="sm"
                       onClick={() => updateCount(counter.id, userId, +1)}
+                      disabled={getTotalUsed(counter) >= counter.total}
                     >
                       +
                     </Button>
