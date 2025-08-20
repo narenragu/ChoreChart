@@ -1,14 +1,6 @@
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Col,
-  Row,
-  Container,
-  Card,
-  Carousel,
-  Badge,
-} from "react-bootstrap";
+import { Card, Carousel } from "react-bootstrap";
 import { db } from "../../firebase";
 import Counter from "./Counter";
 

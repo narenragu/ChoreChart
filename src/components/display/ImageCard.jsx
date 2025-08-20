@@ -1,6 +1,6 @@
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Button, Col, Row, Container, Card, Image } from "react-bootstrap";
+import { Card, Image } from "react-bootstrap";
 import { db } from "../../firebase";
 
 function ImageCard() {

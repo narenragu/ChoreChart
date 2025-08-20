@@ -6,7 +6,7 @@ import NotesCard from "./components/display/NotesCard.jsx";
 import ImageCard from "./components/display/ImageCard.jsx";
 
 import { Col, Row, Container } from "react-bootstrap";
-import { getDoc, getDocs, collection, onSnapshot } from "firebase/firestore";
+import { getDocs, collection, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase.js";
 
 export default function App() {

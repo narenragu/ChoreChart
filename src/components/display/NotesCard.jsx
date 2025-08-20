@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Button, Col, Row, Container, Card } from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import { db } from "../../firebase.js";
 import {
   collection,
