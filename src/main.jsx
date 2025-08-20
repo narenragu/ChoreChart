@@ -7,12 +7,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>

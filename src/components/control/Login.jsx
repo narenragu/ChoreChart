@@ -5,6 +5,7 @@ import {
   setPersistence,
   browserLocalPersistence,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from "firebase/auth";
 import { updateDoc, setDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase.js";
@@ -76,6 +77,15 @@ export default function Login() {
         return signInWithEmailAndPassword(auth, email, password);
       })
       .then((userCredential) => {
+        if (!userCredential.user.emailVerified) {
+          setError({
+            msg: "You must verify your email before logging in.",
+            timestamp: Date.now(),
+          });
+          auth.signOut();
+          return;
+        }
+        window.location.reload();
         console.log("Signed in:", userCredential.user);
       })
       .catch((error) => {
@@ -95,9 +105,19 @@ export default function Login() {
       .then(() => {
         return createUserWithEmailAndPassword(auth, email, password);
       })
-      .then((userCredential) => {
-        console.log("Signed up and signed in:", userCredential.user);
-        return createUserData(userCredential.user, name);
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        console.log("Signed up and signed in:", user);
+
+        await sendEmailVerification(user);
+        setError({
+          msg: "Verification email sent! Please check your inbox.",
+          timestamp: Date.now(),
+        });
+        setIsSignup(false);
+        const result = await createUserData(userCredential.user, name);
+        auth.signOut();
+        return result;
       })
       .then(() => {
         console.log("Added user data to database.");
@@ -130,7 +150,7 @@ export default function Login() {
     const docRef = doc(db, "userData", user.uid);
     return await setDoc(docRef, {
       name: name,
-      email: user.email,
+      isVerified: false,
     });
   }
 
@@ -172,6 +192,7 @@ export default function Login() {
                         name="email"
                         type="email"
                         placeholder="Enter email"
+                        autoComplete="username"
                       />
                     </FloatingLabel>
                   </Form.Group>
@@ -182,6 +203,9 @@ export default function Login() {
                         name="password"
                         type="password"
                         placeholder="Enter password"
+                        autoComplete={
+                          isSignup ? "new-password" : "current-password"
+                        }
                       />
                     </FloatingLabel>
                   </Form.Group>
@@ -208,7 +232,7 @@ export default function Login() {
                       </Button>
                     </>
                   )}
-                  <br />
+                  <br></br>
                   <Alert show={error.msg != ""} variant="warning">
                     {error.msg}
                   </Alert>

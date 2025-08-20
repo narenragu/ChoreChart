@@ -9,8 +9,10 @@ import {
   signOut,
   updatePassword,
 } from "firebase/auth";
+import { useNavigate } from "react-router";
 
 export default function AccountTab(props) {
+  let navigate = useNavigate();
   const [error, setError] = useState({
     type: "error",
     msg: "",
@@ -125,6 +127,13 @@ export default function AccountTab(props) {
 
   return (
     <>
+      <Alert
+        show={!props.userData[props.user.uid]?.isVerified}
+        variant="warning"
+      >
+        Your account is unverified. You can only edit your own account
+        information until your account is verified by admin.
+      </Alert>
       <Card>
         <Card.Header>
           <h4>Set Account Name</h4>
@@ -178,6 +187,12 @@ export default function AccountTab(props) {
           </Form>
         </Card.Body>
       </Card>
+      <hr></hr>
+      <div className="d-flex justify-content-center">
+        <Button variant="secondary" onClick={() => navigate("/display")}>
+          View Chart (Desktop Only)
+        </Button>
+      </div>
       <hr></hr>
       <div className="d-flex justify-content-center">
         <Button variant="danger" onClick={() => signOut(getAuth())}>

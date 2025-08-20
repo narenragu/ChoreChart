@@ -51,60 +51,52 @@ export default function Control() {
 
   return (
     <>
-      {user ? (
-        user == "loading" ? (
-          ""
-        ) : (
-          <>
-            <Navbar className="bg-body-tertiary">
-              <Container>
-                <Navbar.Brand>Chore Chart Control</Navbar.Brand>
-                <Navbar.Toggle />
-                <Navbar.Collapse className="justify-content-end">
-                  <Navbar.Text
-                    onClick={() => {
-                      setTab("account");
-                    }}
-                  >
-                    Signed in as: <u>{userData[user.uid]?.name}</u>
-                  </Navbar.Text>
-                </Navbar.Collapse>
-              </Container>
-            </Navbar>
-            <Container className="py-2">
-              <Tabs
-                id="controlled-tab-example"
-                activeKey={tab}
-                onSelect={(t) => setTab(t)}
-                className="mb-3"
-              >
-                {userData[user.uid]?.isRoommate
-                  ? [
-                      <Tab eventKey="chores" title="Chores" key="chores">
-                        <ChoreTab userData={userData} user={user} />
-                      </Tab>,
-                      <Tab eventKey="notes" title="Notes" key="notes">
-                        <NotesTab userData={userData} user={user} />
-                      </Tab>,
-                      <Tab eventKey="history" title="History" key="history">
-                        <HistoryTab userData={userData} />
-                      </Tab>,
-                    ]
-                  : ""}
+      {(user && user.emailVerified) || user == "loading" ? (
+        <>
+          <Navbar className="bg-body-tertiary">
+            <Container>
+              <Navbar.Brand>Chore Chart Control</Navbar.Brand>
+              <Navbar.Toggle />
+              <Navbar.Collapse className="justify-content-end">
+                <Navbar.Text
+                  onClick={() => {
+                    setTab("account");
+                  }}
+                >
+                  Signed in as: <u>{userData[user.uid]?.name}</u>
+                </Navbar.Text>
+              </Navbar.Collapse>
+            </Container>
+          </Navbar>
+          <Container className="py-2">
+            <Tabs activeKey={tab} onSelect={(t) => setTab(t)} className="mb-3">
+              {userData[user.uid]?.isRoommate && userData[user.uid]?.isVerified
+                ? [
+                    <Tab eventKey="chores" title="Chores" key="chores">
+                      <ChoreTab userData={userData} user={user} />
+                    </Tab>,
+                    <Tab eventKey="notes" title="Notes" key="notes">
+                      <NotesTab userData={userData} user={user} />
+                    </Tab>,
+                    <Tab eventKey="history" title="History" key="history">
+                      <HistoryTab userData={userData} />
+                    </Tab>,
+                  ]
+                : ""}
+              {userData[user.uid]?.isVerified && [
                 <Tab eventKey="counters" title="Counters" key="counters">
                   <CounterTab userData={userData} />
-                </Tab>
-
-                <Tab eventKey="image" title="Image">
+                </Tab>,
+                <Tab eventKey="image" title="Image" key="image">
                   <ImageTab />
-                </Tab>
-                <Tab eventKey="account" title="Account">
-                  <AccountTab user={user} />
-                </Tab>
-              </Tabs>
-            </Container>
-          </>
-        )
+                </Tab>,
+              ]}
+              <Tab eventKey="account" title="Account">
+                <AccountTab user={user} userData={userData} />
+              </Tab>
+            </Tabs>
+          </Container>
+        </>
       ) : (
         <Login></Login>
       )}
