@@ -96,7 +96,7 @@ function ChoreCard(props) {
           <h3>Chores</h3>
         </Card.Header>
         <Card.Body
-          style={{ overflowY: "clip" }}
+          style={{ overflowX: "clip", overflowY: "auto" }}
           ref={scrollRef}
           className="p-2"
         >

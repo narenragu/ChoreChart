@@ -87,7 +87,11 @@ function NotesCard(props) {
           <h3>Notes</h3>
         </Card.Header>
         <Card.Body
-          style={{ overflowY: "clip", background: "#FFA6000F" }}
+          style={{
+            overflowX: "clip",
+            overflowY: "auto",
+            background: "#FFA6000F",
+          }}
           className="p-2"
           ref={scrollRef}
         >
