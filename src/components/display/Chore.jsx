@@ -122,7 +122,7 @@ function Chore(props) {
 
     try {
       await updateDoc(choreRef, {
-        dueDate: datePicker,
+        dueDate: datePicker.toISOString().split("T")[0],
       });
     } catch (err) {
       console.error("Error updating due date:", err);
@@ -142,12 +142,12 @@ function Chore(props) {
                 <h5 className="p-0 m-1">
                   <Badge
                     bg={
-                      new Date(props.dueDate.seconds * 1000) < Date.now()
+                      new Date(`${props.dueDate}T00:00:00`) < Date.now()
                         ? "danger"
                         : "secondary"
                     }
                   >
-                    {new Date(props.dueDate.seconds * 1000).toDateString()}
+                    {new Date(`${props.dueDate}T00:00:00`).toDateString()}
                   </Badge>
                 </h5>
               </Col>

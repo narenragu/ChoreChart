@@ -72,16 +72,15 @@ export default function ChoreTab(props) {
         .sort((a, b) => a.dueDate - b.dueDate)
         .map((chore) => {
           return (
-            <>
+            <div key={chore.name}>
               <hr></hr>
               <Chore
                 {...chore}
                 rotation={rotation}
                 userData={props.userData}
-                key={chore.name}
                 user={props.user}
               ></Chore>
-            </>
+            </div>
           );
         })}
     </>

@@ -47,7 +47,7 @@ export default function HistoryTab(props) {
           {history
             .sort((a, b) => b.date - a.date)
             .map((entry) => (
-              <tr>
+              <tr key={entry}>
                 <td>{props.userData[entry.userID].name}</td>
                 <td>
                   <Badge style={{ background: entry.data.color + "4F" }} bg="">
