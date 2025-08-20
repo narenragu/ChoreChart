@@ -6,13 +6,18 @@ import NotesCard from "./components/display/NotesCard.jsx";
 import ImageCard from "./components/display/ImageCard.jsx";
 
 import { Col, Row, Container } from "react-bootstrap";
-import { getDocs, collection, onSnapshot } from "firebase/firestore";
+import { getDocs, collection, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase.js";
 
 export default function App() {
   const [now, setNow] = useState(new Date());
   const [bottomBarHeight, setBottomBarHeight] = useState(0);
   const [userData, setUserData] = useState({});
+  const [chores, setChores] = useState([]);
+  const [counters, setCounters] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [images, setImages] = useState([]);
+  const [rotation, setRotation] = useState([]);
   const bottomBarRef = useRef(null);
 
   // Clock updater
@@ -35,31 +40,135 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    async function fetchUserData() {
-      const docSnap = await getDocs(collection(db, "userData"));
+    async function fetchAllData() {
+      try {
+        console.log("fetching all data");
+        
+        const userDataSnap = await getDocs(collection(db, "userData"));
+        const userDataResult = {};
+        userDataSnap.forEach((doc) => {
+          userDataResult[doc.id] = doc.data();
+        });
+        setUserData(userDataResult);
+        
+        //fetches
 
-      const result = {};
-      docSnap.forEach((doc) => {
-        result[doc.id] = doc.data();
-      });
-      console.log("getting userdata");
+        const choresSnap = await getDocs(collection(db, "chores"));
+        const choresResult = choresSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setChores(choresResult);
 
-      setUserData(result);
+        const countersSnap = await getDocs(collection(db, "counters"));
+        const countersResult = countersSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCounters(countersResult);
+
+        const notesSnap = await getDocs(collection(db, "notes"));
+        const notesResult = notesSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotes(notesResult);
+
+        const imagesSnap = await getDocs(collection(db, "images"));
+        const imagesResult = imagesSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setImages(imagesResult);
+
+        const rotationDoc = await getDoc(doc(db, "rotations", "rotations"));
+        if (rotationDoc.exists()) {
+          setRotation(rotationDoc.data().rotation || []);
+        }
+
+        console.log("all data fetched");
+      } catch (error) {
+        console.error("error fetching data:", error);
+      }
     }
 
-    fetchUserData();
+    fetchAllData();
   }, []);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "userData"), (newUserData) => {
-      const result = {};
-      newUserData.forEach((doc) => {
-        result[doc.id] = doc.data();
-      });
-      setUserData(result);
-    });
+    // listeners
+    const unsubscribers = [];
 
-    return () => unsub();
+    try {
+      const userDataUnsub = onSnapshot(collection(db, "userData"), (snapshot) => {
+        const result = {};
+        snapshot.forEach((doc) => {
+          result[doc.id] = doc.data();
+        });
+        setUserData(result);
+      });
+      unsubscribers.push(userDataUnsub);
+
+
+      
+      const choresUnsub = onSnapshot(collection(db, "chores"), (snapshot) => {
+        const result = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setChores(result);
+      });
+      unsubscribers.push(choresUnsub);
+
+      
+      const countersUnsub = onSnapshot(collection(db, "counters"), (snapshot) => {
+        const result = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCounters(result);
+      });
+      unsubscribers.push(countersUnsub);
+
+      
+
+      const notesUnsub = onSnapshot(collection(db, "notes"), (snapshot) => {
+        const result = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNotes(result);
+      });
+      unsubscribers.push(notesUnsub);
+
+      
+
+      const imagesUnsub = onSnapshot(collection(db, "images"), (snapshot) => {
+        const result = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setImages(result);
+      });
+      unsubscribers.push(imagesUnsub);
+
+      
+
+      const rotationUnsub = onSnapshot(doc(db, "rotations", "rotations"), (snapshot) => {
+        if (snapshot.exists()) {
+          setRotation(snapshot.data().rotation || []);
+        }
+      });
+      unsubscribers.push(rotationUnsub);
+
+    } catch (error) {
+      console.error("failed setup listeners:", error);
+    }
+
+    
+    return () => {
+      unsubscribers.forEach(unsub => unsub());
+    };
   }, []);
 
   return (
@@ -88,7 +197,11 @@ export default function App() {
             height: "100%",
           }}
         >
-          <ChoreCard userData={userData} />
+          <ChoreCard 
+            userData={userData} 
+            chores={chores} 
+            rotation={rotation}
+          />
         </Col>
 
         {/* Right side split vertically */}
@@ -107,7 +220,10 @@ export default function App() {
               overflowY: "auto",
             }}
           >
-            <NotesCard userData={userData} />
+            <NotesCard 
+              userData={userData} 
+              notes={notes}
+            />
           </div>
           <div
             style={{
@@ -119,10 +235,13 @@ export default function App() {
             }}
           >
             <div style={{ flex: 1, overflowY: "auto" }}>
-              <CounterCard userData={userData} />
+              <CounterCard 
+                userData={userData} 
+                counters={counters}
+              />
             </div>
             <div style={{ flex: 1, overflowY: "hidden" }}>
-              <ImageCard />
+              <ImageCard images={images} />
             </div>
           </div>
         </Col>
