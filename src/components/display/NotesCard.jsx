@@ -1,17 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Card } from "react-bootstrap";
-import { db } from "../../firebase.js";
-import {
-  collection,
-  getDocs,
-  getDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { Button, Col, Row, Container, Card } from "react-bootstrap";
 import Note from "./Note.jsx";
 
 function NotesCard(props) {
-  const [notes, setNotes] = useState([]);
+  const { userData, notes = [] } = props;
   const scrollRef = useRef();
   const [scrollDirection, setScrollDirection] = useState();
   const pauseTime = 2000;
@@ -54,32 +46,6 @@ function NotesCard(props) {
     return () => clearInterval(intervalId);
   }, [scrollDirection]);
 
-  useEffect(() => {
-    async function fetchNotes() {
-      const notes = collection(db, "notes");
-      let notesList = await getDocs(notes);
-      notesList = notesList.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setNotes(notesList);
-    }
-
-    fetchNotes();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "notes"), (notes) => {
-      notes = notes.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setNotes(notes);
-    });
-
-    return () => unsub();
-  }, []);
-
   return (
     <>
       <Card className="h-100 w-100 ">
@@ -87,11 +53,7 @@ function NotesCard(props) {
           <h3>Notes</h3>
         </Card.Header>
         <Card.Body
-          style={{
-            overflowX: "clip",
-            overflowY: "auto",
-            background: "#FFA6000F",
-          }}
+          style={{ overflowY: "clip", background: "#FFA6000F" }}
           className="p-2"
           ref={scrollRef}
         >
@@ -101,7 +63,7 @@ function NotesCard(props) {
               return (
                 <Note
                   {...note}
-                  userData={props.userData}
+                  userData={userData}
                   key={note.datePosted}
                 ></Note>
               );

@@ -18,26 +18,12 @@ export default function NotesTab(props) {
   const [createMessage, setCreateMessage] = useState("");
 
   useEffect(() => {
-    async function fetchNotes() {
-      const notes = collection(db, "notes");
-      let notesList = await getDocs(notes);
-      notesList = notesList.docs.map((doc) => ({
+    const unsub = onSnapshot(collection(db, "notes"), (snapshot) => {
+      const notesList = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setNotes(notesList);
-    }
-
-    fetchNotes();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "notes"), (notes) => {
-      notes = notes.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setNotes(notes);
     });
 
     return () => unsub();

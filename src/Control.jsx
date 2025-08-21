@@ -21,21 +21,10 @@ export default function Control() {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
-      fetchUserData();
     });
 
     return () => unsubscribe();
   }, []);
-
-  async function fetchUserData() {
-    const docSnap = await getDocs(collection(db, "userData"));
-
-    const result = {};
-    docSnap.forEach((doc) => {
-      result[doc.id] = doc.data();
-    });
-    setUserData(result);
-  }
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "userData"), (newUserData) => {
@@ -102,8 +91,4 @@ export default function Control() {
       )}
     </>
   );
-}
-
-function Home(props) {
-  return <>{<p>menu</p>}</>;
 }

@@ -1,7 +1,7 @@
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Alert, Button, Card, Form, InputGroup } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   EmailAuthProvider,
   getAuth,
@@ -10,6 +10,7 @@ import {
   updatePassword,
 } from "firebase/auth";
 import { useNavigate } from "react-router";
+import { useErrorTimeout } from "../../hooks/useErrorTimeout";
 
 export default function AccountTab(props) {
   let navigate = useNavigate();
@@ -24,41 +25,9 @@ export default function AccountTab(props) {
     timestamp: Date.now(),
   });
 
-  useEffect(() => {
-    if (!error) return;
-
-    const timer = setTimeout(() => {
-      setError((err) => {
-        return {
-          type: err.type,
-          msg: "",
-          timestamp: Date.now(),
-        };
-      });
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [error]);
-
-  useEffect(() => {
-    if (!error) return;
-
-    const timer = setTimeout(() => {
-      setPasswordError((err) => {
-        return {
-          type: err.type,
-          msg: "",
-          timestamp: Date.now(),
-        };
-      });
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [passwordError]);
+  //hook for timeout
+  useErrorTimeout(error, setError);
+  useErrorTimeout(passwordError, setPasswordError);
 
   async function editUserData(user, username) {
     const docRef = doc(db, "userData", user.uid);

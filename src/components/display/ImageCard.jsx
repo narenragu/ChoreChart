@@ -1,37 +1,8 @@
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Card, Image } from "react-bootstrap";
-import { db } from "../../firebase";
 
-function ImageCard() {
-  const [images, setImages] = useState();
-
-  useEffect(() => {
-    async function fetchImages() {
-      const images = collection(db, "images");
-      let imagesList = await getDocs(images);
-      imagesList = imagesList.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setImages(imagesList);
-    }
-
-    fetchImages();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "images"), (images) => {
-      images = images.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setImages(images);
-    });
-
-    return () => unsub();
-  }, []);
+function ImageCard(props) {
+  const { images = [] } = props;
 
   return (
     <>
@@ -43,7 +14,7 @@ function ImageCard() {
           className="d-flex justify-content-center align-items-center"
           style={{ height: "calc(100% - 56px)" }} // subtract header height
         >
-          {images && (
+          {images && images.length > 0 && (
             <Image
               src={`${images[0].data}`}
               rounded

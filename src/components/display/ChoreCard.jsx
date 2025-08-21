@@ -1,18 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Card } from "react-bootstrap";
-import { db } from "../../firebase.js";
-import {
-  collection,
-  getDocs,
-  getDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { Button, Col, Row, Container, Card } from "react-bootstrap";
 import Chore from "./Chore.jsx";
 
 function ChoreCard(props) {
-  const [chores, setChores] = useState([]);
-  const [rotation, setRotation] = useState([]);
+  const { userData, chores = [], rotation = [] } = props;
   const scrollRef = useRef();
   const [scrollDirection, setScrollDirection] = useState();
   const pauseTime = 2000;
@@ -55,40 +46,6 @@ function ChoreCard(props) {
     return () => clearInterval(intervalId);
   }, [scrollDirection]);
 
-  async function fetchChores() {
-    const chores = collection(db, "chores");
-    let choreList = await getDocs(chores);
-    choreList = choreList.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setChores(choreList);
-  }
-
-  useEffect(() => {
-    async function fetchRotations() {
-      const docRef = doc(db, "rotations", "rotations");
-      const docSnap = await getDoc(docRef);
-
-      setRotation(docSnap.data().rotation);
-    }
-    console.log("fetching chores");
-    fetchChores();
-    fetchRotations();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "chores"), (chores) => {
-      chores = chores.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setChores(chores);
-    });
-
-    return () => unsub();
-  }, []);
-
   return (
     <>
       <Card className="h-100 w-100">
@@ -111,7 +68,7 @@ function ChoreCard(props) {
                 <Chore
                   {...chore}
                   rotation={rotation}
-                  userData={props.userData}
+                  userData={userData}
                   key={chore.name}
                 ></Chore>
               );

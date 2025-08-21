@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase.js";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Card,
@@ -22,6 +22,7 @@ import {
   Modal,
   InputGroup,
 } from "react-bootstrap";
+import { useErrorTimeout } from "../../hooks/useErrorTimeout";
 
 export default function Login() {
   const [isSignup, setIsSignup] = useState(false);
@@ -35,35 +36,9 @@ export default function Login() {
     timestamp: Date.now(),
   });
 
-  useEffect(() => {
-    if (!error) return;
-
-    const timer = setTimeout(() => {
-      setError({
-        msg: "",
-        timestamp: Date.now(),
-      });
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [error]);
-
-  useEffect(() => {
-    if (!error) return;
-
-    const timer = setTimeout(() => {
-      setResetError({
-        msg: "",
-        timestamp: Date.now(),
-      });
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [resetError]);
+  //hook fo timeout
+  useErrorTimeout(error, setError);
+  useErrorTimeout(resetError, setResetError);
 
   function login(e) {
     e.preventDefault();

@@ -1,37 +1,9 @@
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { Card, Carousel } from "react-bootstrap";
-import { db } from "../../firebase";
 import Counter from "./Counter";
 
 function CounterCard(props) {
-  const [counters, setCounters] = useState([]);
-
-  useEffect(() => {
-    async function fetchCounters() {
-      const counters = collection(db, "counters");
-      let countersList = await getDocs(counters);
-      countersList = countersList.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCounters(countersList);
-    }
-
-    fetchCounters();
-  }, []);
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "counters"), (counters) => {
-      counters = counters.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setCounters(counters);
-    });
-
-    return () => unsub();
-  }, []);
+  const { userData, counters = [] } = props;
 
   return (
     <>
@@ -42,8 +14,8 @@ function CounterCard(props) {
         <Card.Body>
           <Carousel controls={false}>
             {counters.map((counter) => (
-              <Carousel.Item>
-                <Counter {...counter} userData={props.userData} />
+              <Carousel.Item key={counter.id}>
+                <Counter {...counter} userData={userData} />
               </Carousel.Item>
             ))}
           </Carousel>
