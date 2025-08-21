@@ -60,7 +60,11 @@ export default function ChoreTab(props) {
           )
         : chores
       )
-        .sort((a, b) => a.dueDate - b.dueDate)
+        .sort(
+          (a, b) =>
+            new Date(`${a.dueDate}T00:00:00`) -
+            new Date(`${b.dueDate}T00:00:00`)
+        )
         .map((chore) => {
           return (
             <div key={chore.name}>
