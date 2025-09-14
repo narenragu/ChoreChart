@@ -6,7 +6,13 @@ import NotesCard from "./components/display/NotesCard.jsx";
 import ImageCard from "./components/display/ImageCard.jsx";
 
 import { Col, Row, Container } from "react-bootstrap";
-import { getDocs, collection, onSnapshot, doc, getDoc } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  onSnapshot,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "./firebase.js";
 
 export default function App() {
@@ -43,14 +49,14 @@ export default function App() {
     async function fetchAllData() {
       try {
         console.log("fetching all data");
-        
+
         const userDataSnap = await getDocs(collection(db, "userData"));
         const userDataResult = {};
         userDataSnap.forEach((doc) => {
           userDataResult[doc.id] = doc.data();
         });
         setUserData(userDataResult);
-        
+
         //fetches
 
         const choresSnap = await getDocs(collection(db, "chores"));
@@ -100,17 +106,18 @@ export default function App() {
     const unsubscribers = [];
 
     try {
-      const userDataUnsub = onSnapshot(collection(db, "userData"), (snapshot) => {
-        const result = {};
-        snapshot.forEach((doc) => {
-          result[doc.id] = doc.data();
-        });
-        setUserData(result);
-      });
+      const userDataUnsub = onSnapshot(
+        collection(db, "userData"),
+        (snapshot) => {
+          const result = {};
+          snapshot.forEach((doc) => {
+            result[doc.id] = doc.data();
+          });
+          setUserData(result);
+        }
+      );
       unsubscribers.push(userDataUnsub);
 
-
-      
       const choresUnsub = onSnapshot(collection(db, "chores"), (snapshot) => {
         const result = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -120,17 +127,17 @@ export default function App() {
       });
       unsubscribers.push(choresUnsub);
 
-      
-      const countersUnsub = onSnapshot(collection(db, "counters"), (snapshot) => {
-        const result = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCounters(result);
-      });
+      const countersUnsub = onSnapshot(
+        collection(db, "counters"),
+        (snapshot) => {
+          const result = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setCounters(result);
+        }
+      );
       unsubscribers.push(countersUnsub);
-
-      
 
       const notesUnsub = onSnapshot(collection(db, "notes"), (snapshot) => {
         const result = snapshot.docs.map((doc) => ({
@@ -141,8 +148,6 @@ export default function App() {
       });
       unsubscribers.push(notesUnsub);
 
-      
-
       const imagesUnsub = onSnapshot(collection(db, "images"), (snapshot) => {
         const result = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -152,22 +157,21 @@ export default function App() {
       });
       unsubscribers.push(imagesUnsub);
 
-      
-
-      const rotationUnsub = onSnapshot(doc(db, "rotations", "rotations"), (snapshot) => {
-        if (snapshot.exists()) {
-          setRotation(snapshot.data().rotation || []);
+      const rotationUnsub = onSnapshot(
+        doc(db, "rotations", "rotations"),
+        (snapshot) => {
+          if (snapshot.exists()) {
+            setRotation(snapshot.data().rotation || []);
+          }
         }
-      });
+      );
       unsubscribers.push(rotationUnsub);
-
     } catch (error) {
       console.error("failed setup listeners:", error);
     }
 
-    
     return () => {
-      unsubscribers.forEach(unsub => unsub());
+      unsubscribers.forEach((unsub) => unsub());
     };
   }, []);
 
@@ -197,11 +201,7 @@ export default function App() {
             height: "100%",
           }}
         >
-          <ChoreCard 
-            userData={userData} 
-            chores={chores} 
-            rotation={rotation}
-          />
+          <ChoreCard userData={userData} chores={chores} rotation={rotation} />
         </Col>
 
         {/* Right side split vertically */}
@@ -220,10 +220,7 @@ export default function App() {
               overflowY: "auto",
             }}
           >
-            <NotesCard 
-              userData={userData} 
-              notes={notes}
-            />
+            <NotesCard userData={userData} notes={notes} />
           </div>
           <div
             style={{
@@ -235,10 +232,7 @@ export default function App() {
             }}
           >
             <div style={{ flex: 1, overflowY: "auto" }}>
-              <CounterCard 
-                userData={userData} 
-                counters={counters}
-              />
+              <CounterCard userData={userData} counters={counters} />
             </div>
             <div style={{ flex: 1, overflowY: "hidden" }}>
               <ImageCard images={images} />
@@ -258,7 +252,13 @@ export default function App() {
       >
         <Col>
           <h1 className="text-center" style={{ margin: 0 }}>
-            {now.toDateString()} {now.toLocaleTimeString()}
+            {now.toDateString()}{" "}
+            {now.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            })}
           </h1>
         </Col>
       </Row>
